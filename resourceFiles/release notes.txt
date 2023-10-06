@@ -1,0 +1,143 @@
+Jacob Griffin's SuperJavaPaint, Version 5.0 - 10/6/2023
+
+    New Features:
+	    - Added some JavaDoc comments for better code readability.
+	    - Live Draw added for most types.
+	    - Introduces a timer-based auto save.
+	    - Implements 3 unit tests for the SJPCanvasSettings class.
+
+    Known Issues:
+        - Autosave only occurs on the main canvas.
+        - AutoSave accumulates images that are not cleared from the autoSaves folder
+        - Live draw doesn't yet work for shape
+        - If a file is made using Save As..., it should be the current file (for saving again)
+        - New canvases should clear the stored file to prevent accidental overwrites
+        - Thick dashed strokes appear solid
+        - It can appear as if no buttons are selected if the user clicks the currently toggled button
+
+    Expected Next Sprint:
+        - Add regular polygon
+        - The timer's countdown should be visible to the user (Only if they desire)
+        - Allow for saving with an alternate file format - with a warning for possible data loss
+
+        - Rotate an image by 90º intervals
+        - Notifications from the OS ("Corner of Windows)" for Autosave
+        - Threading for Logging (See Blackboard Example)
+        - Tool Tips
+
+
+
+Jacob Griffin's SuperJavaPaint, Version 4.0 - 10/1/2023
+
+    New Features:
+	- Has tabs, but they are not yet fully functional
+        - Prompts user to save before creating a new canvas
+        - Switched toolbar to ToggleButtons to improve ease of use
+        - Added text to ToggleButtons in addition to icons for greater accessibility
+        - Polygon Draw (up to 128 sides)
+        - Rounded Rectangle
+        - Eraser Tool
+        - Triangles are now based on 3 points, allowing for greater user control
+        - All draw tools are used by only clicking the mouse (simplified controls), except for free draw
+        - "Edit" menu containing "Undo" and "Redo" functions
+        - Simple text stamper
+        - Select, Move, and Duplicate a part of an image.
+
+    Known Issues:
+	- Tabs do not work as expected at all
+        - Undo activates twice unless using Free Draw
+        - Undo doesn't work well with triangle and Polygon (issue lies in when the canvas snapshot is taken)
+        - Undo can eventually cause items to appear blurred
+        - Shapes can't be seen before being drawn.
+        - If a file is made using Save As..., it should be the current file (for saving again)
+        - New canvases should clear the stored file to prevent accidental overwrites
+        - Thick dashed strokes appear solid
+        - It can appear as if no buttons are selected if the user clicks the currently toggled button
+
+    Expected Next Sprint:
+        - Live Draw
+        - Improve tabs
+        - Add regular polygon
+
+        - Have at least 3 unit tests
+        - Have a timer that controls autosave (save a temporary copy of the image - don't overwrite it, in case of crashes)
+        - The timer's countdown should be visible to the user (Only if they desire)
+        - Should have some Javadoc commenting
+        - Allow for saving with an alternate file format - with a warning for possible data loss
+
+
+
+Jacob Griffin's SuperJavaPaint, Version 3.0 - 9/22/2023
+
+    New Features:
+        - Key Commands added to file controls
+        - Color Picker now impacts line color
+        - "New Custom Canvas" opens a window to allow the user to choose their canvas size
+        - Shape Draw (Square, Rectangle, Ellipse, Circle, Triangle) and straight line draw added
+        - Shape and Draw lines can now be dashed or solid
+        - Shapes can now be filled or outlined
+        - Toolbar redone to include icons and cleaner layout
+        - "Smart save" will warn the user if they try to close an unsaved file
+
+    Known Issues:
+        - Shapes can't be seen before being drawn.
+        - If a file is made using Save As..., it should be the current file (for saving again)
+        - New canvases should clear the stored file to prevent accidental overwrites
+
+    Expected Next Sprint:
+        - Undo and Redo (Stack-based)
+        - New Canvas Warning
+        - Draw an Additional Shape
+        - Eraser Tool
+        - Draw all regular polygons
+        - Copy/Paste a part of an image
+        - Transform a part of an image
+        - Add user-typed text
+        - Add tabs
+
+
+
+Jacob Griffin’s SuperJavaPaint, Version 2.0 - 09/15/2023
+
+	New Features:
+		- "Save As" functionality expanded to .jpg and .bmp (and maintains .png support)
+		- Lines of user-selected widths can be drawn on the canvas and saved on images.
+		- Help tab with release notes added to the menu
+		- Color chooser template (without functionality) added to the window
+
+	Known Issues:
+		- Lines can appear jagged at times.
+
+	Expected Next Sprint:
+   		- Add keyboard shortcuts for menu actions
+		- Introduce shapes with user-controlled width
+		- Tie the color chooser to line and shape color
+		- Introduce a color grabber
+		- Allow the user to manually resize the canvas
+		- Add a straight line draw option
+		- Add an option to make a dashed stroke
+		- Implement smart save
+		- Add a Java pun somewhere in the code
+		- Give the option for multiple tabs
+
+
+
+Jacob Griffin’s JavaPaint, Version 1.0 - 09/10/2023
+
+	New Features:
+		- Application Window
+		- Menu Bar including File tab
+		- Functional “Open”, “Save”, and “Save As” menu items
+		- Auto-resized canvas (to fit various image sizes)
+
+	Known Issues:
+		- “Save As” can only write .png files currently.
+		- “Save” overwrites the creation date for a file (ideally, it would only overwrite modify date).
+		- While the canvas resizes, the window does not resize for larger images.
+ 
+	Expected Next Sprint:
+		- Allow “Save As” to handle .jpg and .bmp files
+		- Draw a line of a user-selected width
+		- Incorporate newly added lines into Save/Save As functionality
+		- Add a color chooser template (with functionality being added later)
+		- Add a Help tab to the Menu Bar
