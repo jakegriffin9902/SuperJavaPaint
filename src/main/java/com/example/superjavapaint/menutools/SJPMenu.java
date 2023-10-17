@@ -1,14 +1,12 @@
 package com.example.superjavapaint.menutools;
 
 import com.example.superjavapaint.PaintApp;
-import com.example.superjavapaint.SJPCanvas;
 import com.example.superjavapaint.SJPCanvasSettings;
 import com.example.superjavapaint.SJPTab;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCodeCombination;
 
 import java.io.File;
@@ -60,7 +58,25 @@ public class SJPMenu extends MenuBar {
             MenuItem redo = new MenuItem("Redo");
                 redo.setOnAction(actionEvent -> EditControls.redo(PaintApp.mainCanvas));
                 redo.setAccelerator(KeyCodeCombination.keyCombination("Ctrl+Shift+Z"));
-        edit.getItems().addAll(undo, redo);
+            MenuItem rotate = new MenuItem("Rotate Canvas 90º");
+                rotate.setOnAction(actionEvent -> EditControls.rotate(PaintApp.mainCanvas));
+                rotate.setAccelerator(KeyCodeCombination.keyCombination("Ctrl+R"));
+            MenuItem vFlip = new MenuItem("Flip Canvas Vertically");
+                vFlip.setOnAction(actionEvent -> {
+                    Image capture = PaintApp.mainCanvas.getRegion(0, 0, PaintApp.mainCanvas.getWidth(), PaintApp.mainCanvas.getHeight());
+                    PaintApp.mainCanvas.getGraphicsContext2D().drawImage(capture, 0, 0, capture.getWidth(), capture.getHeight(), capture.getWidth(),0,-capture.getWidth(),capture.getHeight());
+                    PaintApp.mainCanvas.updateCanvas();
+                });
+                vFlip.setAccelerator(KeyCodeCombination.keyCombination("Ctrl+F"));
+        MenuItem hFlip = new MenuItem("Flip Canvas Vertically");
+        hFlip.setOnAction(actionEvent -> {
+            Image capture = PaintApp.mainCanvas.getRegion(0, 0, PaintApp.mainCanvas.getWidth(), PaintApp.mainCanvas.getHeight());
+            PaintApp.mainCanvas.getGraphicsContext2D().drawImage(capture, 0, 0, capture.getWidth(), capture.getHeight(), 0,capture.getHeight(),capture.getWidth(),-capture.getHeight());
+            PaintApp.mainCanvas.updateCanvas();
+        });
+        hFlip.setAccelerator(KeyCodeCombination.keyCombination("Ctrl+G"));
+        edit.getItems().addAll(undo, redo, rotate, vFlip, hFlip);
+
 
 
         //Sets up the WINDOW section of the MenuBar
@@ -70,25 +86,29 @@ public class SJPMenu extends MenuBar {
                     PaintApp.sjpTabs.addLast(new SJPTab());
                     PaintApp.tabPane.getTabs().add(PaintApp.sjpTabs.getLast());
 
-                    PaintApp.sjpTabs.getLast().setOnSelectionChanged(new EventHandler<Event>() {
-                        public void handle(Event t) {
-                            for (int i = 0; i < PaintApp.sjpTabs.size(); i++) {
-                                if (PaintApp.sjpTabs.get(i).isSelected()) {
-                                    SJPCanvasSettings tempSettings = PaintApp.mainCanvas.getCanvasSettings();
-                                    PaintApp.mainCanvas = PaintApp.sjpTabs.get(i).getCanvas();
-                                    //These lines ensure the new canvas is synced with the Toolbar
-                                    PaintApp.mainCanvas.getCanvasSettings().setType(tempSettings.getType());
-                                    PaintApp.mainCanvas.getCanvasSettings().setColor(tempSettings.getColor());
-                                    PaintApp.mainCanvas.getCanvasSettings().setFilled(tempSettings.isFilled());
-                                    PaintApp.mainCanvas.getCanvasSettings().setDashed(tempSettings.isDashed());
-                                    PaintApp.mainCanvas.getCanvasSettings().setLineWidth(tempSettings.getLineWidth());
-                                }
+                    PaintApp.sjpTabs.getLast().setOnSelectionChanged(t -> {
+                        for (int i = 0; i < PaintApp.sjpTabs.size(); i++) {
+                            if (PaintApp.sjpTabs.get(i).isSelected()) {
+                                SJPCanvasSettings tempSettings = PaintApp.mainCanvas.getCanvasSettings();
+                                PaintApp.mainCanvas = PaintApp.sjpTabs.get(i).getCanvas();
+                                //These lines ensure the new canvas is synced with the Toolbar
+                                PaintApp.mainCanvas.setCanvasSettings(tempSettings);
                             }
                         }
                     });
                 });
         window.getItems().add(newTab);
 
+        Menu view = new Menu("View");
+            MenuItem showTimer = new MenuItem("Show Autosave Timer");
+                showTimer.setOnAction(actionEvent -> {
+
+                });
+            MenuItem hideTimer = new MenuItem("Hide Autosave Timer");
+                hideTimer.setOnAction(actionEvent -> {
+
+                });
+        view.getItems().addAll(showTimer, hideTimer);
 
         //Sets up the HELP section of the MenuBar
         Menu help = new Menu("Help");
@@ -96,6 +116,6 @@ public class SJPMenu extends MenuBar {
             MenuItem about = new MenuItem("About");
         help.getItems().addAll(releaseNotes, about);
 
-        super.getMenus().addAll(file, edit, window, help);
+        super.getMenus().addAll(file, edit, window, view, help);
     }
 }

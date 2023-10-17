@@ -1,6 +1,7 @@
 package com.example.superjavapaint.menutools;
 
 import com.example.superjavapaint.PaintApp;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -8,6 +9,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import java.io.File;
+
+import static com.example.superjavapaint.PaintApp.*;
 
 /**
  * Designed solely for creating a SJPToolbar, an extension of the ToolBar object that, by default, contains all necessary tools
@@ -17,6 +20,7 @@ public class SJPToolbar extends ToolBar {
 
     //TOGGLE BUTTONS
     private ColorPicker colorPicker;
+    private double rotationAngle;
 
     //takes the canvas as an argument to pass to editor methods
     public SJPToolbar() {
@@ -34,6 +38,7 @@ public class SJPToolbar extends ToolBar {
             wide.setGraphic(new ImageView(new Image(String.valueOf(wideLineFile.toURI()))));
 
         ToggleGroup lineWidthGroup = new ToggleGroup();
+
         lineWidthGroup.getToggles().addAll(thin, medium, wide);
         lineWidthGroup.selectToggle(thin);
 
@@ -48,24 +53,44 @@ public class SJPToolbar extends ToolBar {
         //Eyedropper tool is created here so that it can be added to the color group, but all other actions occur within the color HBox
         ToggleButton freeDraw = new ToggleButton("Draw");
             freeDraw.setPrefWidth(70);
+            Tooltip freeDrawTip = new Tooltip("Draws on the canvas by dragging the mouse.");
+            Tooltip.install(freeDraw, freeDrawTip);
         ToggleButton lineDraw = new ToggleButton("Line");
             lineDraw.setPrefWidth(70);
+            Tooltip lineDrawTip = new Tooltip("Draws a line segment between two mouse click points.");
+            Tooltip.install(lineDraw, lineDrawTip);
         ToggleButton eraser = new ToggleButton("Erase");
             eraser.setPrefWidth(70);
+            Tooltip eraserTip = new Tooltip("Erases the canvas by dragging the mouse.");
+            Tooltip.install(eraser, eraserTip);
         ToggleButton square = new ToggleButton("Square");
             square.setPrefWidth(95);
+            Tooltip squareTip = new Tooltip("Creates a square based on two mouse clicks.");
+            Tooltip.install(square, squareTip);
         ToggleButton rectangle = new ToggleButton("Rectangle");
             rectangle.setPrefWidth(95);
+            Tooltip rectangleTip = new Tooltip("Creates a rectangle based on two mouse clicks.");
+            Tooltip.install(rectangle, rectangleTip);
         ToggleButton roundRect = new ToggleButton("Round Rectangle");
             roundRect.setPrefWidth(170);
+            Tooltip roundRectTip = new Tooltip("Creates a rounded rectangle based on two mouse clicks.");
+            Tooltip.install(roundRect, roundRectTip);
         ToggleButton circle = new ToggleButton("Circle");
             circle.setPrefWidth(75);
+            Tooltip circleTip = new Tooltip("Creates a circle with bounds generated from two mouse clicks.");
+            Tooltip.install(circle, circleTip);
         ToggleButton oval = new ToggleButton("Oval");
             oval.setPrefWidth(75);
+            Tooltip ovalTip = new Tooltip("Creates an oval bounded by two mouse clicks.");
+            Tooltip.install(oval, ovalTip);
         ToggleButton triangle = new ToggleButton("Triangle");
             triangle.setPrefWidth(85);
+            Tooltip triangleTip = new Tooltip("Creates a triangle with vertices set by mouse clicks.");
+            Tooltip.install(triangle, triangleTip);
         ToggleButton shape = new ToggleButton("Shape");
             shape.setPrefWidth(85);
+            Tooltip shapeTip = new Tooltip("Creates a polygon with vertices set by mouse clicks.");
+            Tooltip.install(shape, shapeTip);
         ToggleButton eyedropper = new ToggleButton();
 
         ToggleGroup typeGroup = new ToggleGroup();
@@ -144,11 +169,11 @@ public class SJPToolbar extends ToolBar {
         colorPicker.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setColor(colorPicker.getValue()));
         colorPicker.setPrefWidth(107);
         colorPicker.setPrefHeight(27);
-        eyedropper.setOnAction(actionEvent -> {
-            PaintApp.mainCanvas.getCanvasSettings().setType("Eyedropper");
-        });
+        eyedropper.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setType("Eyedropper"));
         File eyedropperFile = new File("resourceFiles/icons/eyedropper.png");
         eyedropper.setGraphic(new ImageView(new Image(String.valueOf(eyedropperFile.toURI()))));
+        Tooltip eyedropperTip = new Tooltip("Sets the color to the color present where the mouse is clicked.");
+        Tooltip.install(eyedropper, eyedropperTip);
 
         HBox colorTools = new HBox(colorPicker, eyedropper);
 
@@ -202,13 +227,26 @@ public class SJPToolbar extends ToolBar {
                 PaintApp.mainCanvas.getCanvasSettings().setType("Select");
                 PaintApp.mainCanvas.setvCount(0);
             });
-            select.setPrefWidth(70);
         ToggleButton stamp = new ToggleButton("Stamp");
-            stamp.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Stamp");
+            stamp.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setType("Stamp"));
+        Button rotate = new Button("Rotate");
+            rotate.setOnAction(actionEvent -> {
+                //Rotates the captured image based on the SELECTION ROTATION text box
+                ImageView iv = new ImageView(mainCanvas.getCapture());
+                if(stampAngle != null) {
+                    rotationAngle += Double.parseDouble(stampAngle.getText());
+                    iv.setRotate(rotationAngle);
+                    SnapshotParameters params = new SnapshotParameters();
+                    params.setFill(Color.TRANSPARENT);
+                    mainCanvas.setRotatedCapture(iv.snapshot(params, null));
+                }
             });
-            stamp.setPrefWidth(70);
-        VBox transform = new VBox(select, stamp);
+        TextField stampAngle = PaintApp.stampAngle;
+        stampAngle.setPrefWidth(50);
+        HBox angleBox = new HBox(rotate, stampAngle);
+        select.setPrefWidth(103);
+        stamp.setPrefWidth(103);
+        VBox transform = new VBox(select, stamp, angleBox);
 
         typeGroup.getToggles().addAll(select, stamp);
 
@@ -222,4 +260,5 @@ public class SJPToolbar extends ToolBar {
     public void setColorPicker(Color color) {
         colorPicker.setValue(color);
     }
+    public void setRotationAngle(double rotationAngle) {this.rotationAngle = rotationAngle;}
 }

@@ -8,36 +8,41 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
 
 import java.util.Stack;
 
-import static com.example.superjavapaint.PaintApp.mainCanvas;
-import static com.example.superjavapaint.PaintApp.mainToolbar;
+import static com.example.superjavapaint.PaintApp.*;
 
 public class SJPCanvas extends Canvas {
 
-    private Stack<Image> undo, redo;
+    private Stack<Image> undoImage, redoImage;
+    private Stack<Double> undoWidth, undoHeight, redoWidth, redoHeight;
     private Boolean isSaved;
     private int vCount;
     private double[] xCoords, yCoords;
-    private Image capture;
+    private Image capture, rotatedCapture;
     private SJPCanvasSettings canvasSettings;
 
     //creates a Canvas object with extra information for use in the application
     public SJPCanvas() {
         super(800, 600);
         canvasSettings = new SJPCanvasSettings();
-        this.vCount = 0;
-        xCoords = new double[128];
-        yCoords = new double[128];
-        undo = new Stack<>();
-        redo = new Stack<>();
-        undo.add(this.getRegion(0, this.getWidth(), 0, this.getHeight()));
-        this.getGraphicsContext2D().setImageSmoothing(false);
-        this.setIsSaved(true);
+        vCount = 0;
+        xCoords = new double[50];
+        yCoords = new double[50];
+        undoImage = new Stack<>();
+        redoImage = new Stack<>();
+        undoWidth = new Stack<>();
+        undoHeight = new Stack<>();
+        redoWidth = new Stack<>();
+        redoHeight = new Stack<>();
+        undoImage.add(getRegion(0, 0, this.getWidth(), this.getHeight()));
+        undoWidth.add(getWidth());
+        undoHeight.add(getHeight());
+        getGraphicsContext2D().setImageSmoothing(false);
+        setIsSaved(true);
 
-        this.getGraphicsContext2D().drawImage(undo.peek(), 0, 0);
+        this.getGraphicsContext2D().drawImage(undoImage.peek(), 0, 0);
 
         //Whenever the mouse is pressed, a new vertex's x and y coordinates are added to their respective arrays, indexed by "vertexCounter".
         //vertexCounter is always reset to zero when a new Tool is selected or when a new item (shape/line/etc.) is added to the canvas (meaning a new item is starting)
@@ -52,7 +57,7 @@ public class SJPCanvas extends Canvas {
                 // DRAW and ERASE also rely on 3 mouseEvents, not just one.
                 case "Draw" -> Draw.drawPress(this, mouseEvent.getX(), mouseEvent.getY());
                 case "Erase" -> Draw.erasePress(this, mouseEvent.getX(), mouseEvent.getY());
-                case "Eyedropper" -> canvasSettings.setColor((this.getRegion(mouseEvent.getX(), mouseEvent.getX() + 1, mouseEvent.getY(), mouseEvent.getY() + 1)).getPixelReader().getColor(0, 0));
+                case "Eyedropper" -> canvasSettings.setColor((this.getRegion(mouseEvent.getX(), mouseEvent.getY(), mouseEvent.getX() + 1, mouseEvent.getY() + 1)).getPixelReader().getColor(0, 0));
 
                 //TRIANGLE, like most other shapes, starts the counter at zero, and force stops at 2, drawing a triangle with the 3 collected points
                 case "Triangle" -> {
@@ -74,7 +79,7 @@ public class SJPCanvas extends Canvas {
                     if (vCount > 1 && (Math.abs(xCoords[vCount - 1] - xCoords[0]) >= 5 || Math.abs(yCoords[vCount - 1] - yCoords[0]) >= 5)) {
                         Draw.drawLine(this, xCoords[vCount - 2], yCoords[vCount - 2], xCoords[vCount - 1], yCoords[vCount - 1]);
                     }
-                    if (vCount >= 128 || ((Math.abs(xCoords[vCount - 1] - xCoords[0]) < 5 && Math.abs(yCoords[vCount - 1] - yCoords[0]) < 5) && vCount > 1)) {
+                    if (vCount >= 50 || ((Math.abs(xCoords[vCount - 1] - xCoords[0]) < 5 && Math.abs(yCoords[vCount - 1] - yCoords[0]) < 5) && vCount > 1)) {
                         xCoords[vCount - 1] = xCoords[0];
                         yCoords[vCount - 1] = yCoords[0];
                         Draw.drawShape(this, vCount, xCoords, yCoords);
@@ -86,8 +91,7 @@ public class SJPCanvas extends Canvas {
                 case "Rectangle" -> {
                     if (vCount == 0) {vCount++;}
                     else {
-                        Draw.drawRectangle(this, Math.min(xCoords[vCount - 1], xCoords[vCount]), Math.min(yCoords[vCount - 1], yCoords[vCount]),
-                                Math.abs(xCoords[vCount - 1] - xCoords[vCount]), Math.abs(yCoords[vCount - 1] - yCoords[vCount]));
+                        Draw.drawRectangle(this, xCoords[vCount - 1], yCoords[vCount - 1], xCoords[vCount], yCoords[vCount]);
                         vCount = 0;
                         updateCanvas();
                     }
@@ -96,8 +100,7 @@ public class SJPCanvas extends Canvas {
                 case "RoundRect" -> {
                     if (vCount == 0) {vCount++;}
                     else {
-                        Draw.drawRoundRect(this, Math.min(xCoords[vCount - 1], xCoords[vCount]), Math.min(yCoords[vCount - 1], yCoords[vCount]),
-                                Math.abs(xCoords[vCount - 1] - xCoords[vCount]), Math.abs(yCoords[vCount - 1] - yCoords[vCount]));
+                        Draw.drawRoundRect(this, xCoords[vCount - 1], yCoords[vCount - 1], xCoords[vCount], yCoords[vCount]);
                         vCount = 0;
                         updateCanvas();
                     }
@@ -115,8 +118,7 @@ public class SJPCanvas extends Canvas {
                 case "Ellipse" -> {
                     if (vCount == 0) {vCount++;}
                     else {
-                        Draw.drawEllipse(this, Math.min(xCoords[vCount - 1], xCoords[vCount]), Math.min(yCoords[vCount - 1], yCoords[vCount]),
-                                Math.abs(xCoords[vCount - 1] - xCoords[vCount]), Math.abs(yCoords[vCount - 1] - yCoords[vCount]));
+                        Draw.drawEllipse(this, xCoords[vCount - 1], yCoords[vCount - 1], xCoords[vCount], yCoords[vCount]);
                         vCount = 0;
                         updateCanvas();
                     }
@@ -143,15 +145,18 @@ public class SJPCanvas extends Canvas {
                 case "Text" -> {
                     GraphicsContext graphicsContext = Draw.prepGC(this);
                     graphicsContext.strokeText(PaintApp.textField.getText(), mouseEvent.getX(), mouseEvent.getY());
-                    this.updateCanvas();
+                    updateCanvas();
                 }
 
                 case "Stamp" -> {
                     GraphicsContext graphicsContext = Draw.prepGC(this);
+                    if (rotatedCapture == null) {
+                        rotatedCapture = capture;
+                    }
                     xCoords[0] = mouseEvent.getX();
                     yCoords[0] = mouseEvent.getY();
-                    graphicsContext.drawImage(capture, mouseEvent.getX()-capture.getWidth()/2, mouseEvent.getY()-capture.getHeight()/2);
-                    this.updateCanvas();
+                    graphicsContext.drawImage(rotatedCapture, mouseEvent.getX()-rotatedCapture.getWidth()/2, mouseEvent.getY()-rotatedCapture.getHeight()/2);
+                    updateCanvas();
                 }
 
                 case "Select" -> {
@@ -159,9 +164,11 @@ public class SJPCanvas extends Canvas {
                         vCount++;
                     }
                     else {
+                        mainToolbar.setRotationAngle(0);
                         capture = getRegion(
-                                Math.min(xCoords[vCount - 1], xCoords[vCount])+1, Math.max(xCoords[vCount-1], xCoords[vCount])-1,
-                                Math.min(yCoords[vCount -1], yCoords[vCount])+1, Math.max(yCoords[vCount -1], yCoords[vCount])-1);
+                                Math.min(xCoords[vCount - 1], xCoords[vCount])+1, Math.min(yCoords[vCount -1], yCoords[vCount])+1,
+                                Math.max(xCoords[vCount-1], xCoords[vCount])-1, Math.max(yCoords[vCount -1], yCoords[vCount])-1);
+                        rotatedCapture = capture;
                         vCount = 0;
                     }
                 }
@@ -174,9 +181,9 @@ public class SJPCanvas extends Canvas {
 
 
         this.setOnMouseMoved(mouseEvent -> {
+            EditControls.updateLiveDraw(this);
             switch (canvasSettings.getType()) {
                 case "Triangle" -> {
-                    EditControls.updateLiveDraw(this);
                     if (vCount == 1) {
                         Draw.drawLine(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
@@ -189,7 +196,6 @@ public class SJPCanvas extends Canvas {
 
                 case "Shape" -> {
                     /* THIS IS NOT FUNCTIONING... UNSURE OF HOW TO FIX
-                    EditControls.updateLiveDraw(this);
                     if (vCount > 1 && (Math.abs(mouseEvent.getX() - xCoords[0]) >= 5 || Math.abs(mouseEvent.getY() - yCoords[0]) >= 5)) {
                         Draw.drawLine(this, xCoords[vCount - 1], yCoords[vCount - 1], mouseEvent.getX(), mouseEvent.getY());
                     }
@@ -201,88 +207,63 @@ public class SJPCanvas extends Canvas {
 
                 case "Rectangle" -> {
                     if (vCount > 0) {
-                        EditControls.updateLiveDraw(this);
-                        Draw.drawRectangle(this, Math.min(xCoords[0], mouseEvent.getX()), Math.min(yCoords[0], mouseEvent.getY()),
-                                Math.abs(xCoords[0] - mouseEvent.getX()), Math.abs(yCoords[0] - mouseEvent.getY()));
+                        Draw.drawRectangle(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "RoundRect" -> {
                     if (vCount > 0) {
-                        EditControls.updateLiveDraw(this);
-                        Draw.drawRoundRect(this, Math.min(xCoords[0], mouseEvent.getX()), Math.min(yCoords[0], mouseEvent.getY()),
-                                Math.abs(xCoords[0] - mouseEvent.getX()), Math.abs(yCoords[0] - mouseEvent.getY()));
+                        Draw.drawRoundRect(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "Square" -> {
                     if (vCount == 1) {
-                        EditControls.updateLiveDraw(this);
                         Draw.drawSquare(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "Ellipse" -> {
                     if (vCount > 0) {
-                        EditControls.updateLiveDraw(this);
-                        Draw.drawEllipse(this, Math.min(xCoords[0], mouseEvent.getX()), Math.min(yCoords[0], mouseEvent.getY()),
-                                Math.abs(xCoords[0] - mouseEvent.getX()), Math.abs(yCoords[0] - mouseEvent.getY()));
+                        Draw.drawEllipse(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "Circle" -> {
                     if (vCount == 1) {
-                        EditControls.updateLiveDraw(this);
                         Draw.drawCircle(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "Line" -> {
                     if (vCount == 1) {
-                        EditControls.updateLiveDraw(this);
                         Draw.drawLine(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
                     }
                 }
 
                 case "Text" -> {
-                    EditControls.updateLiveDraw(this);
                     GraphicsContext graphicsContext = Draw.prepGC(this);
                     graphicsContext.strokeText(PaintApp.textField.getText(), mouseEvent.getX(), mouseEvent.getY());
                 }
 
                 case "Stamp" -> {
                     GraphicsContext graphicsContext = Draw.prepGC(this);
-                    graphicsContext.setFill(Color.WHITE);
-                    graphicsContext.setStroke(Color.WHITE);
-                    graphicsContext.setLineWidth(1);
-                    graphicsContext.setLineCap(StrokeLineCap.SQUARE);
-                    graphicsContext.fillRect(Math.min(xCoords[0], xCoords[1]), Math.min(yCoords[0], yCoords[1]), Math.abs(xCoords[0] - xCoords[1]), Math.abs(yCoords[0] - yCoords[1]));
-                    EditControls.updateLiveDraw(this);
                     xCoords[0] = mouseEvent.getX();
-                    xCoords[1] = xCoords[0] + capture.getWidth();
+                    if (rotatedCapture == null) {
+                        rotatedCapture = capture;
+                    }
+                    xCoords[1] = xCoords[0] + rotatedCapture.getWidth();
                     yCoords[0] = mouseEvent.getY();
-                    yCoords[1] = yCoords[0] + capture.getHeight();
-                    graphicsContext.drawImage(capture, mouseEvent.getX()-capture.getWidth()/2, mouseEvent.getY()-capture.getHeight()/2);
+                    yCoords[1] = yCoords[0] + rotatedCapture.getHeight();
+                    graphicsContext.drawImage(rotatedCapture, mouseEvent.getX()-rotatedCapture.getWidth()/2, mouseEvent.getY()-rotatedCapture.getHeight()/2);
                 }
 
                 case "Select" -> {
-                    EditControls.updateLiveDraw(this);
                     if (vCount == 1) {
-                        Boolean tempDash = canvasSettings.isDashed();
-                        Boolean tempFill = canvasSettings.isFilled();
-                        Color tempColor = canvasSettings.getColor();
-                        int tempWidth = canvasSettings.getLineWidth();
-                        canvasSettings.setDashed(true);
-                        canvasSettings.setFilled(false);
-                        canvasSettings.setColor(Color.RED);
-                        canvasSettings.setLineWidth(1);
-                        EditControls.updateLiveDraw(this);
-                        Draw.drawRectangle(this, Math.min(xCoords[0], mouseEvent.getX()), Math.min(yCoords[0], mouseEvent.getY()),
-                                Math.abs(xCoords[0] - mouseEvent.getX()), Math.abs(yCoords[0] - mouseEvent.getY()));
-                        canvasSettings.setDashed(tempDash);
-                        canvasSettings.setFilled(tempFill);
-                        canvasSettings.setColor(tempColor);
-                        canvasSettings.setLineWidth(tempWidth);
+                        SJPCanvasSettings tempSettings = getCanvasSettings();
+                        canvasSettings = new SJPCanvasSettings(1, false, true, Color.RED, "Select");
+                        Draw.drawRectangle(this, xCoords[0], yCoords[0], mouseEvent.getX(), mouseEvent.getY());
+                        canvasSettings = tempSettings;
                     }
                 }
             }
@@ -297,11 +278,11 @@ public class SJPCanvas extends Canvas {
 
         this.setOnMouseReleased(mouseEvent -> {
             if (canvasSettings.getType().equals("Draw")) {
-                Draw.drawRelease(this, mouseEvent.getX(), mouseEvent.getY());
+                Draw.drawRelease(this);
                 updateCanvas();
             }
             if (canvasSettings.getType().equals("Erase")) {
-                Draw.eraseRelease(this, mouseEvent.getX(), mouseEvent.getY());
+                Draw.eraseRelease(this);
                 updateCanvas();
             }
         });
@@ -314,7 +295,7 @@ public class SJPCanvas extends Canvas {
         dimension 3 is the minimum y coordinate of the region
         dimension 4 is the maximum y coordinate of the region
      */
-    public Image getRegion(double x1, double x2, double y1, double y2) {
+    public Image getRegion(double x1, double y1, double x2, double y2) {
         double width = Math.abs(x1 - x2);
         double height = Math.abs(y1 - y2);
 
@@ -328,19 +309,33 @@ public class SJPCanvas extends Canvas {
     }
 
     public void updateCanvas() {
-        undo.add(getRegion(0, this.getWidth(), 0, this.getHeight()));
-        redo.clear();
+        undoImage.add(getRegion(0, 0, this.getWidth(), this.getHeight()));
+        redoImage.clear();
+        undoWidth.add(getWidth());
+        undoHeight.add(getHeight());
+        redoWidth.clear();
+        redoHeight.clear();
         this.setIsSaved(false);
     }
 
     public void setIsSaved(Boolean isSaved) {this.isSaved = isSaved;}
     public void setvCount(int shapeVertexCounter) {this.vCount = shapeVertexCounter;}
+    public void setCanvasSettings(SJPCanvasSettings canvasSettings) {
+        this.canvasSettings = canvasSettings;
+    }
+    public void setRotatedCapture(Image rotatedCapture) {this.rotatedCapture = rotatedCapture;}
 
     public Boolean getIsSaved() {return isSaved;}
-    public Stack<Image> getUndo() {return undo;}
-    public Stack<Image> getRedo() {return redo;}
+    public Stack<Image> getUndoImage() {return undoImage;}
+    public Stack<Image> getRedoImage() {return redoImage;}
+
+    public Stack<Double> getUndoHeight() {return undoHeight;}
+    public Stack<Double> getUndoWidth() {return undoWidth;}
+    public Stack<Double> getRedoHeight() {return redoHeight;}
+    public Stack<Double> getRedoWidth() {return redoWidth;}
 
     public SJPCanvasSettings getCanvasSettings() {
         return canvasSettings;
     }
+    public Image getCapture() {return capture;}
 }

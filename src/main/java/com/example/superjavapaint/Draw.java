@@ -12,7 +12,6 @@ import javafx.scene.shape.StrokeLineCap;
 public class Draw {
 
     /**
-     *
      * @param canvas an SJPCanvas, which comes from a subclass of Canvas and contains a GraphicsContext
      * @return the graphicsContext after modifications are applied, so it can be used by other Draw methods
      */
@@ -48,10 +47,8 @@ public class Draw {
         graphicsContext.lineTo(x, y);
     }
     //Function 3/3 for freehand draw
-    public static void drawRelease(SJPCanvas canvas, double x, double y) {
+    public static void drawRelease(SJPCanvas canvas) {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-        graphicsContext.lineTo(x, y);
-        graphicsContext.stroke();
         graphicsContext.closePath();
     }
 
@@ -69,30 +66,46 @@ public class Draw {
         canvas.getCanvasSettings().setColor(temp);
     }
 
-    public static void eraseRelease(SJPCanvas canvas, double x, double y) {
+    public static void eraseRelease(SJPCanvas canvas) {
         Color temp = canvas.getCanvasSettings().getColor();
         canvas.getCanvasSettings().setColor(Color.WHITE);
-        drawRelease(canvas, x, y);
+        drawRelease(canvas);
         canvas.getCanvasSettings().setColor(temp);
     }
     //takes as arguments an SJP canvas and 4 doubles
     //x1 and y1 are the initial x and y coordinates
     //x2 and y2 are the difference between start and end points (so the width and height)
-    public static void drawRectangle(SJPCanvas canvas, double x1, double y1, double width, double height) {
+    public static void drawRectangle(SJPCanvas canvas, double x1, double y1, double x2, double y2) {
+
+        double initialX = Math.min(x1, x2);
+        double initialY = Math.min(y1, y2);
+
+        double width = Math.abs(x1 - x2);
+        double height = Math.abs(y1 - y2);
+
         GraphicsContext graphicsContext = prepGC(canvas);
         graphicsContext.setLineCap(StrokeLineCap.SQUARE);
-        graphicsContext.strokeRect(x1, y1, width, height);
+        graphicsContext.strokeRect(initialX, initialY, width, height);
+
         if (canvas.getCanvasSettings().isFilled()) {
-            graphicsContext.fillRect(x1, y1, width, height);
+            graphicsContext.fillRect(initialX, initialY, width, height);
         }
     }
 
-    public static void drawRoundRect(SJPCanvas canvas, double x1, double y1, double width, double height) {
+    public static void drawRoundRect(SJPCanvas canvas, double x1, double y1, double x2, double y2) {
+
+        double initialX = Math.min(x1, x2);
+        double initialY = Math.min(y1, y2);
+
+        double width = Math.abs(x1 - x2);
+        double height = Math.abs(y1 - y2);
+
         GraphicsContext graphicsContext = prepGC(canvas);
         graphicsContext.setLineCap(StrokeLineCap.ROUND);
-        graphicsContext.strokeRoundRect(x1, y1, width, height, (height+width)/12, (height+width)/12);
+        graphicsContext.strokeRoundRect(initialX, initialY, width, height, (height+width)/12, (height+width)/12);
+
         if (canvas.getCanvasSettings().isFilled()) {
-            graphicsContext.fillRoundRect(x1, y1, width, height, (height+width)/12, (height+width)/12);
+            graphicsContext.fillRoundRect(initialX, initialY, width, height, (height+width)/12, (height+width)/12);
         }
     }
 
@@ -105,27 +118,36 @@ public class Draw {
         double sideLength = (Math.abs(x1 - x2) + Math.abs(y1 - y2)) / 2;
         if (x2 > x1) {
             if (y2 > y1) {
-                Draw.drawRectangle(canvas, x1, y1, sideLength, sideLength);
+                Draw.drawRectangle(canvas, x1, y1, x1+sideLength, y1+sideLength);
             }
             else { // y position is less than initial coordinate
-                Draw.drawRectangle(canvas, x1, y1-sideLength, sideLength, sideLength);
+                Draw.drawRectangle(canvas, x1, y1-sideLength, x1+sideLength, y1);
             }
         }
         else { // x position is less than initial coordinate
             if (y2 > y1) {
-                Draw.drawRectangle(canvas, x1-sideLength, y1, sideLength, sideLength);
+                Draw.drawRectangle(canvas, x1-sideLength, y1, x1, y1+sideLength);
             }
             else { // y position is less than initial coordinate
-                Draw.drawRectangle(canvas, x1-sideLength, y1-sideLength, sideLength, sideLength);
+                Draw.drawRectangle(canvas, x1-sideLength, y1-sideLength, x1, y1);
             }
         }
     }
 
-    public static void drawEllipse(SJPCanvas canvas, double x1, double y1, double width, double height) {
+    public static void drawEllipse(SJPCanvas canvas, double x1, double y1, double x2, double y2) {
+
+        double initialX = Math.min(x1, x2);
+        double initialY = Math.min(y1, y2);
+
+        double width = Math.abs(x1 - x2);
+        double height = Math.abs(y1 - y2);
+
         GraphicsContext graphicsContext = prepGC(canvas);
-        graphicsContext.strokeOval(x1, y1, width, height);
+        graphicsContext.setLineCap(StrokeLineCap.ROUND);
+        graphicsContext.strokeOval(initialX, initialY, width, height);
+
         if (canvas.getCanvasSettings().isFilled()) {
-            graphicsContext.fillOval(x1, y1, width, height);
+            graphicsContext.fillOval(initialX, initialY, width, height);
         }
     }
 
@@ -133,18 +155,18 @@ public class Draw {
         double diameter = (Math.abs(x1 - x2) + Math.abs(y1 - y2)) / 2;
         if (x2 > x1) {
             if (y2 > y1) {
-                Draw.drawEllipse(canvas, x1, y1, diameter, diameter);
+                Draw.drawEllipse(canvas, x1, y1, x1+diameter, y1+diameter);
             }
             else { // y position is less than initial coordinate
-                Draw.drawEllipse(canvas, x1, y1-diameter, diameter, diameter);
+                Draw.drawEllipse(canvas, x1, y1-diameter, x1+diameter, y1);
             }
         }
         else { // x position is less than initial coordinate
             if (y2 > y1) {
-                Draw.drawEllipse(canvas, x1-diameter, y1, diameter, diameter);
+                Draw.drawEllipse(canvas, x1-diameter, y1, x1, y1+diameter);
             }
             else { // y position is less than initial coordinate
-                Draw.drawEllipse(canvas, x1-diameter, y1-diameter, diameter, diameter);
+                Draw.drawEllipse(canvas, x1-diameter, y1-diameter, x1, y1);
             }
         }
     }

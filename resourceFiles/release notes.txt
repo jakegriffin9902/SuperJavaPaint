@@ -1,3 +1,31 @@
+Jacob Griffin's SuperJavaPaint, Version 6.0 - 10/16/2023
+
+    New Features:
+	    - Implements Tooltips for drawing instruments.
+	    - Stamp now has the ability to be rotated by any amount of degrees.
+	    - The canvas can be rotated in 90º intervals.
+	    - Canvases can be flipped vertically and horizontally.
+
+    Known Issues:
+        - Live Draw for transparent objects doesn't accurately reflect transparency level.
+        - Autosave only occurs on the main canvas.
+        - AutoSave accumulates images that are not cleared from the autoSaves folder
+        - Live draw doesn't yet work for shape
+        - If a file is made using Save As..., it should be the current file (for saving again)
+        - New canvases should clear the stored file to prevent accidental overwrites
+        - Thick dashed strokes appear solid
+        - It can appear as if no buttons are selected if the user clicks the currently toggled button
+
+    Features to Add:
+        - Add regular polygon
+        - The timer's countdown should be visible to the user (Only if they desire)
+        - Allow for saving with an alternate file format - with a warning for possible data loss
+
+        - Notifications from the OS ("Corner of Windows)" for Autosave
+        - Threading for Logging (See Blackboard Example)
+
+
+
 Jacob Griffin's SuperJavaPaint, Version 5.0 - 10/6/2023
 
     New Features:
@@ -7,6 +35,7 @@ Jacob Griffin's SuperJavaPaint, Version 5.0 - 10/6/2023
 	    - Implements 3 unit tests for the SJPCanvasSettings class.
 
     Known Issues:
+        - Live Draw for transparent objects doesn't accurately reflect transparency level.
         - Autosave only occurs on the main canvas.
         - AutoSave accumulates images that are not cleared from the autoSaves folder
         - Live draw doesn't yet work for shape

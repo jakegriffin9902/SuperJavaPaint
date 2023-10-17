@@ -25,7 +25,7 @@ import static com.example.superjavapaint.PaintApp.currentFile;
 import static com.example.superjavapaint.PaintApp.mainCanvas;
 
 /**
- * Contains static methods called by the "File" MenuItems in the SJPMenuBar
+ * Contains static methods called by the "File" MenuItems in the SJPMenuBar, as well as similar methods that run in the background.
  * These methods handle the opening and saving of files, as well as resetting the canvas
  * Resetting an unsaved canvas will open a warning window to prompt the user to save, again calling the save methods.
  */
@@ -42,13 +42,14 @@ public class FileControls {
             graphicsContext.drawImage(image, 0, 0);
         }
         canvas.setIsSaved(true);
+        canvas.updateCanvas();
         return file;
     }
 
     //overwrites the last opened image with a snapshot of the canvas
     //takes as arguments the canvas to be captured and the file destination
     public static void save(SJPCanvas canvas, File file) {
-        Image image = canvas.getRegion(0, canvas.getWidth(), 0, canvas.getHeight());
+        Image image = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight());
         BufferedImage bufferedImage = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         try {
@@ -65,7 +66,7 @@ public class FileControls {
     //Uses FileChooser to select a save directory for a canvas snapshot, and saves as one of 3 file types
     //Takes as an argument the canvas to be saved
     public static void saveAs(SJPCanvas canvas) {
-        Image image = canvas.getRegion(0, canvas.getWidth(), 0, canvas.getHeight());
+        Image image = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight());
         BufferedImage bufferedImage = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         FileChooser fileChooser = new FileChooser();
@@ -141,10 +142,7 @@ public class FileControls {
                 canvas.setWidth(width);
                 GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
                 graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                graphicsContext.drawImage(canvas.getRegion(0, canvas.getWidth(), 0, canvas.getHeight()), 0, 0);
-                canvas.getUndo().clear();
-                canvas.getUndo().push(canvas.getRegion(0, canvas.getWidth(), 0, canvas.getHeight()));
-                canvas.getRedo().clear();
+                graphicsContext.drawImage(canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight()), 0, 0);
                 canvas.setIsSaved(true);
             });
         }
@@ -182,14 +180,12 @@ public class FileControls {
         });
     }
 
-    public static String autoSaveImage(SJPCanvas canvas) throws IOException {
+    public static void autoSaveImage(SJPCanvas canvas) throws IOException {
         if(!canvas.getIsSaved()) {
-            Image autosaveBackup = canvas.getRegion(0, canvas.getWidth(), 0, canvas.getHeight()); //snapshot of the current canvas
+            Image autoSaveBackup = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight()); //snapshot of the current canvas
             File backupFile = new File("resourceFiles/autoSaves/" + LocalDate.now() + " " + Instant.now() + ".png");
             backupFile.createNewFile();
-            ImageIO.write(SwingFXUtils.fromFXImage(autosaveBackup, null), "png", new FileOutputStream(backupFile));
-            return "Autosave Complete!";
+            ImageIO.write(SwingFXUtils.fromFXImage(autoSaveBackup, null), "png", new FileOutputStream(backupFile));
         }
-        return "No Autosave";
     }
 }

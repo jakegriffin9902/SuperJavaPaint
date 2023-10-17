@@ -5,8 +5,6 @@ import com.example.superjavapaint.menutools.SJPMenu;
 import com.example.superjavapaint.menutools.SJPToolbar;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,20 +21,20 @@ import java.util.TimerTask;
 public class PaintApp extends Application {
 
     public static SJPCanvas mainCanvas;
-    public static TextField textField;
+    public static TextField textField, stampAngle;
     public static SJPToolbar mainToolbar;
     public static SJPMenu mainMenuBar;
     public static File[] currentFile;
     public static LinkedList<SJPTab> sjpTabs;
     public static TabPane tabPane;
-
     public static TimerTask autoSave;
     public static Timer autoSaveTimer;
 
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
 
         currentFile = new File[]{null};
         textField = new TextField("Enter Text");
+        stampAngle = new TextField("0");
         tabPane = new TabPane();
         sjpTabs = new LinkedList<>();
 
@@ -62,23 +60,16 @@ public class PaintApp extends Application {
 
         mainCanvas = sjpTabs.getLast().getCanvas();
 
-        sjpTabs.get(0).setOnSelectionChanged(new EventHandler<Event>() {
-            public void handle(Event t) {
-                for (int i = 0; i < PaintApp.sjpTabs.size(); i++) {
-                    if (PaintApp.sjpTabs.get(i).isSelected()) {
-                        SJPCanvasSettings tempSettings = mainCanvas.getCanvasSettings();
-                        mainCanvas = PaintApp.sjpTabs.get(i).getCanvas();
-                        //These lines ensure the new canvas is synced with the Toolbar
-                        mainCanvas.getCanvasSettings().setType(tempSettings.getType());
-                        mainCanvas.getCanvasSettings().setColor(tempSettings.getColor());
-                        mainCanvas.getCanvasSettings().setFilled(tempSettings.isFilled());
-                        mainCanvas.getCanvasSettings().setDashed(tempSettings.isDashed());
-                        mainCanvas.getCanvasSettings().setLineWidth(tempSettings.getLineWidth());
-                    }
+        sjpTabs.get(0).setOnSelectionChanged(t -> {
+            for (int i = 0; i < PaintApp.sjpTabs.size(); i++) {
+                if (PaintApp.sjpTabs.get(i).isSelected()) {
+                    SJPCanvasSettings tempSettings = mainCanvas.getCanvasSettings();
+                    mainCanvas = PaintApp.sjpTabs.get(i).getCanvas();
+                    //These lines ensure the new canvas is synced with the Toolbar
+                    mainCanvas.setCanvasSettings(tempSettings);
                 }
             }
         });
-
 
         tabPane.getTabs().add(sjpTabs.get(0));
         mainMenuBar = new SJPMenu(currentFile);
@@ -87,20 +78,16 @@ public class PaintApp extends Application {
         Scene scene = new Scene(borderPane, 805, 725);
 
         //Setup of the TOP, which consists of the SJPMenu and ToolBar
-        VBox top = new VBox();
         mainToolbar = new SJPToolbar();
-        top.getChildren().addAll(mainMenuBar, mainToolbar);
+        VBox top = new VBox(mainMenuBar, mainToolbar);
         borderPane.setTop(top);
 
-        //Setup of the CENTER, which contains the canvas within a ScrollPane
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(mainCanvas);
+        //Setup of the CENTER, which contains a tabPane to hold SJPTabs
         borderPane.setCenter(tabPane);
 
         stage.setTitle("Super Java Paint");
         stage.setScene(scene);
         stage.show();
-
 
         //SMART SAVE
         /*
@@ -109,7 +96,10 @@ public class PaintApp extends Application {
         save only appears as an option if a file to be overwritten exists already
          */
         stage.setOnCloseRequest(windowEvent -> {
-            if (mainCanvas.getIsSaved()) {stage.close();}
+            if (mainCanvas.getIsSaved()) {
+                stage.close();
+                System.exit(0);
+            }
             else {
                 Stage stage1 = new Stage();
                 GridPane gridPane = new GridPane();
@@ -155,6 +145,4 @@ public class PaintApp extends Application {
     public static void main(String[] args) {
         launch();
     }
-
-
 }
