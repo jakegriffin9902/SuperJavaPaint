@@ -12,6 +12,9 @@ public class SJPCanvasSettings{
     private Color color;
     private String type;
 
+    /**
+     * Constructs a new SJPCanvasSettings with default settings
+     */
     public SJPCanvasSettings() {
         lineWidth = 1;
         isFilled = isDashed = false;

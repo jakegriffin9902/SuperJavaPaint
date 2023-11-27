@@ -1,4 +1,8 @@
 Jacob Griffin's SuperJavaPaint, Version 7.0 (Final Commit) - 11/27/2023
+    GitHub: https://github.com/jakegriffin9902/SuperJavaPaint
+    App Demo: https://youtu.be/2CbtAYk9otM
+    Code Walkthrough: https://youtu.be/eBZaYJENBzc
+
     New Features:
 	    - Live Draw now functions correctly for "Shape".
 	    - Redo and Undo are fixed.

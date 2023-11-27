@@ -205,7 +205,7 @@ public class SJPToolbar extends ToolBar {
     public void setRotationAngle(double rotationAngle) {this.rotationAngle = rotationAngle;}
 
     /**
-     *
+     * Creates a ToggleButton and sets its label, icon, tooltip, and width
      * @param label The label that will appear on the button in the Paint App
      * @param iconPath The path from the content root of the image file used for the icon
      * @param toolTip The text that will appear in the tooltip associated with this ToggleButton
@@ -223,7 +223,7 @@ public class SJPToolbar extends ToolBar {
     }
 
     /**
-     *
+     * Creates a ToggleButton and sets its label, icon, and width.
      * @param label The label that will appear on the button in the Paint App
      * @param iconPath The path from the content root of the image file used for the icon
      * @param width An integer specifying how wide the button will be
@@ -238,7 +238,7 @@ public class SJPToolbar extends ToolBar {
     }
 
     /**
-     *
+     * Creates a ToggleButton and sets its label and width.
      * @param label The label that will appear on the button in the Paint App
      * @param width An integer specifying how wide the button will be
      * @return A newly constructed ToggleButton
