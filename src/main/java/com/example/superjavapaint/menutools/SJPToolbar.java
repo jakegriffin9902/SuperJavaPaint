@@ -18,83 +18,54 @@ import static com.example.superjavapaint.PaintApp.*;
  */
 public class SJPToolbar extends ToolBar {
 
-    //TOGGLE BUTTONS
-    private ColorPicker colorPicker;
+    private final ColorPicker colorPicker;
     private double rotationAngle;
 
-    //takes the canvas as an argument to pass to editor methods
     public SJPToolbar() {
         super();
 
         //Sets up the line width option panel, which uses the passed canvas to set the lineWidth
-        ToggleButton thin = new ToggleButton("1");
-            File thinLineFile = new File("resourceFiles/icons/solid.png");
-            thin.setGraphic(new ImageView(new Image(String.valueOf(thinLineFile.toURI()))));
-        ToggleButton medium = new ToggleButton("2");
-            File mediumLineFile = new File("resourceFiles/icons/medium.png");
-            medium.setGraphic(new ImageView(new Image(String.valueOf(mediumLineFile.toURI()))));
-        ToggleButton wide = new ToggleButton("3");
-            File wideLineFile = new File("resourceFiles/icons/wide.png");
-            wide.setGraphic(new ImageView(new Image(String.valueOf(wideLineFile.toURI()))));
+        ToggleButton thinStroke = createToggleButton("1", "resourceFiles/icons/solid.png", 30);
+        ToggleButton mediumStroke = createToggleButton("2", "resourceFiles/icons/medium.png", 30);
+        ToggleButton wideStroke = createToggleButton("3", "resourceFiles/icons/wide.png", 30);
+
+        VBox widths = new VBox(thinStroke, mediumStroke, wideStroke);
+        widths.setSpacing(1);
+            //Sets the actions for width buttons, which change the line width
+            thinStroke.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(1));
+            mediumStroke.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(4));
+            wideStroke.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(8));
 
         ToggleGroup lineWidthGroup = new ToggleGroup();
+        lineWidthGroup.getToggles().addAll(thinStroke, mediumStroke, wideStroke);
+        lineWidthGroup.selectToggle(thinStroke);
 
-        lineWidthGroup.getToggles().addAll(thin, medium, wide);
-        lineWidthGroup.selectToggle(thin);
-
-        VBox widths = new VBox(thin, medium, wide);
-        widths.setSpacing(1);
-            //sets the actions for all buttons
-            thin.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(1));
-            medium.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(4));
-            wide.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setLineWidth(8));
-
-        //Sets up the grid for the type selector, which will control the canvas String type
-        //Eyedropper tool is created here so that it can be added to the color group, but all other actions occur within the color HBox
-        ToggleButton freeDraw = new ToggleButton("Draw");
-            freeDraw.setPrefWidth(70);
-            Tooltip freeDrawTip = new Tooltip("Draws on the canvas by dragging the mouse.");
-            Tooltip.install(freeDraw, freeDrawTip);
-        ToggleButton lineDraw = new ToggleButton("Line");
-            lineDraw.setPrefWidth(70);
-            Tooltip lineDrawTip = new Tooltip("Draws a line segment between two mouse click points.");
-            Tooltip.install(lineDraw, lineDrawTip);
-        ToggleButton eraser = new ToggleButton("Erase");
-            eraser.setPrefWidth(70);
-            Tooltip eraserTip = new Tooltip("Erases the canvas by dragging the mouse.");
-            Tooltip.install(eraser, eraserTip);
-        ToggleButton square = new ToggleButton("Square");
-            square.setPrefWidth(95);
-            Tooltip squareTip = new Tooltip("Creates a square based on two mouse clicks.");
-            Tooltip.install(square, squareTip);
-        ToggleButton rectangle = new ToggleButton("Rectangle");
-            rectangle.setPrefWidth(95);
-            Tooltip rectangleTip = new Tooltip("Creates a rectangle based on two mouse clicks.");
-            Tooltip.install(rectangle, rectangleTip);
-        ToggleButton roundRect = new ToggleButton("Round Rectangle");
-            roundRect.setPrefWidth(170);
-            Tooltip roundRectTip = new Tooltip("Creates a rounded rectangle based on two mouse clicks.");
-            Tooltip.install(roundRect, roundRectTip);
-        ToggleButton circle = new ToggleButton("Circle");
-            circle.setPrefWidth(75);
-            Tooltip circleTip = new Tooltip("Creates a circle with bounds generated from two mouse clicks.");
-            Tooltip.install(circle, circleTip);
-        ToggleButton oval = new ToggleButton("Oval");
-            oval.setPrefWidth(75);
-            Tooltip ovalTip = new Tooltip("Creates an oval bounded by two mouse clicks.");
-            Tooltip.install(oval, ovalTip);
-        ToggleButton triangle = new ToggleButton("Triangle");
-            triangle.setPrefWidth(85);
-            Tooltip triangleTip = new Tooltip("Creates a triangle with vertices set by mouse clicks.");
-            Tooltip.install(triangle, triangleTip);
-        ToggleButton shape = new ToggleButton("Shape");
-            shape.setPrefWidth(85);
-            Tooltip shapeTip = new Tooltip("Creates a polygon with vertices set by mouse clicks.");
-            Tooltip.install(shape, shapeTip);
-        ToggleButton eyedropper = new ToggleButton();
+        ToggleButton freeDraw = createToggleButton("Draw", "resourceFiles/icons/draw.png",
+                "Draws on the canvas by dragging the mouse.", 70);
+        ToggleButton lineDraw = createToggleButton("Line", "resourceFiles/icons/line.png",
+                "Draws a line segment between two mouse click points.", 70);
+        ToggleButton eraser = createToggleButton("Erase", "resourceFiles/icons/eraser.png",
+                "Erases the canvas by dragging the mouse.", 70);
+        ToggleButton square = createToggleButton("Square", "resourceFiles/icons/square.png",
+                "Creates a square based on two mouse clicks.", 95);
+        ToggleButton rectangle = createToggleButton("Rectangle", "resourceFiles/icons/rectangle.png",
+                "Creates a rectangle based on two mouse clicks.", 95);
+        ToggleButton roundRect = createToggleButton("Round Rectangle", "resourceFiles/icons/roundRect.png",
+                "Creates a rounded rectangle based on two mouse clicks.", 170);
+        ToggleButton circle = createToggleButton("Circle", "resourceFiles/icons/circle.png",
+                "Creates a circle with bounds generated from two mouse clicks." , 75);
+        ToggleButton oval = createToggleButton("Oval", "resourceFiles/icons/oval.png",
+                "Creates an oval bounded by two mouse clicks.", 75);
+        ToggleButton triangle = createToggleButton("Triangle", "resourceFiles/icons/triangle.png",
+                "Creates a triangle with vertices set by mouse clicks.", 85);
+        ToggleButton shape = createToggleButton("Shape", "resourceFiles/icons/shape.png",
+                "Creates a polygon with vertices set by mouse clicks.", 85);
+        ToggleButton eyedropper = createToggleButton("", "resourceFiles/icons/eyedropper.png",
+                "Sets the color to the color present where the mouse is clicked.", 25);
 
         ToggleGroup typeGroup = new ToggleGroup();
         typeGroup.getToggles().addAll(freeDraw, lineDraw, eraser, square, rectangle, circle, oval, triangle, roundRect, shape, eyedropper);
+
         typeGroup.selectToggle(freeDraw);
 
         HBox typesR1 = new HBox(freeDraw, square, circle, triangle);
@@ -102,133 +73,106 @@ public class SJPToolbar extends ToolBar {
         HBox typesR3 = new HBox(eraser, roundRect);
         VBox types = new VBox(typesR1, typesR2, typesR3);
 
-            //adds images to the buttons
-            File freeDrawFile = new File("resourceFiles/icons/draw.png");
-                freeDraw.setGraphic(new ImageView(new Image(String.valueOf(freeDrawFile.toURI()))));
-            File lineDrawFile = new File("resourceFiles/icons/line.png");
-                lineDraw.setGraphic(new ImageView(new Image(String.valueOf(lineDrawFile.toURI()))));
-            File squareDrawFile = new File("resourceFiles/icons/square.png");
-                square.setGraphic(new ImageView(new Image(String.valueOf(squareDrawFile.toURI()))));
-            File rectangleDrawFile = new File("resourceFiles/icons/rectangle.png");
-                rectangle.setGraphic(new ImageView(new Image(String.valueOf(rectangleDrawFile.toURI()))));
-            File circleDrawFile = new File("resourceFiles/icons/circle.png");
-                circle.setGraphic(new ImageView(new Image(String.valueOf(circleDrawFile.toURI()))));
-            File ovalDrawFile = new File("resourceFiles/icons/oval.png");
-                oval.setGraphic(new ImageView(new Image(String.valueOf(ovalDrawFile.toURI()))));
-            File triangleDrawFile = new File("resourceFiles/icons/triangle.png");
-                triangle.setGraphic(new ImageView(new Image(String.valueOf(triangleDrawFile.toURI()))));
-            File roundRectFile = new File("resourceFiles/icons/roundRect.png");
-                roundRect.setGraphic(new ImageView(new Image(String.valueOf(roundRectFile.toURI()))));
-            File shapeDrawFile = new File("resourceFiles/icons/shape.png");
-                shape.setGraphic(new ImageView(new Image(String.valueOf(shapeDrawFile.toURI()))));
-            File eraserFile = new File("resourceFiles/icons/eraser.png");
-                eraser.setGraphic(new ImageView(new Image(String.valueOf(eraserFile.toURI()))));
 
             //adds the actions to each button to change the type stored in canvas
             freeDraw.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Draw");
-                EditControls.updateLiveDraw(PaintApp.mainCanvas);
+                mainCanvas.getCanvasSettings().setType("Draw");
+                mainCanvas.updateLiveDraw();
             });
-            eraser.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setType("Erase"));
+            eraser.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setType("Erase"));
             lineDraw.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Line");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Line");
+                mainCanvas.setVCount(0);
             });
             square.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Square");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Square");
+                mainCanvas.setVCount(0);
             });
             rectangle.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Rectangle");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Rectangle");
+                mainCanvas.setVCount(0);
             });
             circle.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Circle");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Circle");
+                mainCanvas.setVCount(0);
             });
             oval.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Ellipse");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Oval");
+                mainCanvas.setVCount(0);
             });
             triangle.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Triangle");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Triangle");
+                mainCanvas.setVCount(0);
             });
             shape.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Shape");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Shape");
+                mainCanvas.setVCount(0);
             });
             roundRect.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("RoundRect");
-                PaintApp.mainCanvas.setvCount(0);
+                mainCanvas.getCanvasSettings().setType("Round Rectangle");
+                mainCanvas.setVCount(0);
             });
 
 
         //Sets up the colorPicker and Eyedropper in their own HBox
         colorPicker = new ColorPicker(Color.BLACK);
-        colorPicker.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setColor(colorPicker.getValue()));
-        colorPicker.setPrefWidth(107);
+        colorPicker.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setColor(colorPicker.getValue()));
+        colorPicker.setPrefWidth(110);
         colorPicker.setPrefHeight(27);
-        eyedropper.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setType("Eyedropper"));
-        File eyedropperFile = new File("resourceFiles/icons/eyedropper.png");
-        eyedropper.setGraphic(new ImageView(new Image(String.valueOf(eyedropperFile.toURI()))));
-        Tooltip eyedropperTip = new Tooltip("Sets the color to the color present where the mouse is clicked.");
-        Tooltip.install(eyedropper, eyedropperTip);
+        eyedropper.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setType("Eyedropper"));
 
         HBox colorTools = new HBox(colorPicker, eyedropper);
 
         //Sets up the lineType Buttons
         VBox lineType = new VBox();
-            ToggleButton solid = new ToggleButton("Solid");
-            ToggleButton dashed = new ToggleButton("Dash");
+            ToggleButton solid = createToggleButton("Solid", "resourceFiles/icons/solid.png",70);
+            ToggleButton dashed = createToggleButton("Dash", "resourceFiles/icons/dashed.png", 70);
             ToggleGroup lineTypeGroup = new ToggleGroup();
             lineTypeGroup.getToggles().addAll(solid, dashed);
             lineTypeGroup.selectToggle(solid);
-            File solidLineFile = new File("resourceFiles/icons/solid.png");
-            solid.setGraphic(new ImageView(new Image(String.valueOf(solidLineFile.toURI()))));
-            File dashedLineFile = new File("resourceFiles/icons/dashed.png");
-            dashed.setGraphic(new ImageView(new Image(String.valueOf(dashedLineFile.toURI()))));
             lineType.getChildren().addAll(solid, dashed);
 
-            solid.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setDashed(false));
-            dashed.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setDashed(true));
+            solid.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setDashed(false));
+            dashed.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setDashed(true));
 
         VBox fillType = new VBox();
-            ToggleButton filled = new ToggleButton("Filled  ");
-            ToggleButton empty = new ToggleButton("Empty");
+            ToggleButton filled = createToggleButton("Filled", "resourceFiles/icons/filled.png", 75);
+            ToggleButton empty = createToggleButton("Empty", "resourceFiles/icons/empty.png", 75);
             ToggleGroup fillGroup = new ToggleGroup();
             fillGroup.getToggles().addAll(filled, empty);
             fillGroup.selectToggle(empty);
-            File filledFile = new File("resourceFiles/icons/filled.png");
-            filled.setGraphic(new ImageView(new Image(String.valueOf(filledFile.toURI()))));
-            File emptyFile = new File("resourceFiles/icons/empty.png");
-            empty.setGraphic(new ImageView(new Image(String.valueOf(emptyFile.toURI()))));
             fillType.getChildren().addAll(filled, empty);
 
-        filled.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setFilled(true));
-        empty.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setFilled(false));
+        filled.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setFilled(true));
+        empty.setOnAction(actionEvent ->mainCanvas.getCanvasSettings().setFilled(false));
 
         HBox dashFill = new HBox(lineType, fillType);
         VBox multi = new VBox(colorTools, dashFill);
 
-        //Builds the text input box and text ToggleButton
-        TextField textField = PaintApp.textField;
+        TextField textField = mainTextField;
         textField.setPrefWidth(100);
         ToggleButton textButton = new ToggleButton("Text");
         textButton.setPrefWidth(100);
-        textButton.setOnAction(actionEvent ->  PaintApp.mainCanvas.getCanvasSettings().setType("Text"));
+        textButton.setOnAction(actionEvent ->  mainCanvas.getCanvasSettings().setType("Text"));
         typeGroup.getToggles().add(textButton);
         VBox text = new VBox(textField, textButton);
 
 
-        //Sets up the Select and Stamp buttons in the TRANSFORM panel
-        ToggleButton select = new ToggleButton("Select");
-            select.setOnAction(actionEvent -> {
-                PaintApp.mainCanvas.getCanvasSettings().setType("Select");
-                PaintApp.mainCanvas.setvCount(0);
+        //Sets up the Cut, Copy, and Paste buttons in the TRANSFORM panel
+        ToggleButton cut = createToggleButton("Cut", 50);
+        ToggleButton copy = createToggleButton("Copy", 53);
+        ToggleButton paste = createToggleButton("Paste", 103);
+
+            cut.setOnAction(actionEvent -> {
+                mainCanvas.getCanvasSettings().setType("Cut");
+                mainCanvas.setVCount(0);
             });
-        ToggleButton stamp = new ToggleButton("Stamp");
-            stamp.setOnAction(actionEvent -> PaintApp.mainCanvas.getCanvasSettings().setType("Stamp"));
+            copy.setOnAction(actionEvent -> {
+                mainCanvas.getCanvasSettings().setType("Copy");
+                mainCanvas.setVCount(0);
+            });
+            paste.setOnAction(actionEvent -> mainCanvas.getCanvasSettings().setType("Paste"));
+
         Button rotate = new Button("Rotate");
             rotate.setOnAction(actionEvent -> {
                 //Rotates the captured image based on the SELECTION ROTATION text box
@@ -244,11 +188,10 @@ public class SJPToolbar extends ToolBar {
         TextField stampAngle = PaintApp.stampAngle;
         stampAngle.setPrefWidth(50);
         HBox angleBox = new HBox(rotate, stampAngle);
-        select.setPrefWidth(103);
-        stamp.setPrefWidth(103);
-        VBox transform = new VBox(select, stamp, angleBox);
+        HBox cutCopy = new HBox(cut, copy);
+        VBox transform = new VBox(cutCopy, paste, angleBox);
 
-        typeGroup.getToggles().addAll(select, stamp);
+        typeGroup.getToggles().addAll(cut, copy, paste);
 
         super.getItems().addAll(widths, types, text, transform, multi);
     }
@@ -256,9 +199,53 @@ public class SJPToolbar extends ToolBar {
     public Color getColorPicker() {
         return colorPicker.getValue();
     }
-
     public void setColorPicker(Color color) {
         colorPicker.setValue(color);
     }
     public void setRotationAngle(double rotationAngle) {this.rotationAngle = rotationAngle;}
+
+    /**
+     *
+     * @param label The label that will appear on the button in the Paint App
+     * @param iconPath The path from the content root of the image file used for the icon
+     * @param toolTip The text that will appear in the tooltip associated with this ToggleButton
+     * @param width An integer specifying how wide the button will be
+     * @return A newly constructed ToggleButton
+     */
+    private ToggleButton createToggleButton(String label, String iconPath, String toolTip, int width) {
+        ToggleButton newButton = new ToggleButton(label);
+        File iconFile = new File(iconPath);
+        newButton.setGraphic(new ImageView(new Image(String.valueOf(iconFile.toURI()))));
+        Tooltip newToolTip = new Tooltip(toolTip);
+        Tooltip.install(newButton, newToolTip);
+        newButton.setPrefWidth(width);
+        return newButton;
+    }
+
+    /**
+     *
+     * @param label The label that will appear on the button in the Paint App
+     * @param iconPath The path from the content root of the image file used for the icon
+     * @param width An integer specifying how wide the button will be
+     * @return A newly constructed ToggleButton
+     */
+    private ToggleButton createToggleButton(String label, String iconPath, int width) {
+        ToggleButton newButton = new ToggleButton(label);
+        File iconFile = new File(iconPath);
+        newButton.setGraphic(new ImageView(new Image(String.valueOf(iconFile.toURI()))));
+        newButton.setPrefWidth(width);
+        return newButton;
+    }
+
+    /**
+     *
+     * @param label The label that will appear on the button in the Paint App
+     * @param width An integer specifying how wide the button will be
+     * @return A newly constructed ToggleButton
+     */
+    private ToggleButton createToggleButton(String label, int width) {
+        ToggleButton newButton = new ToggleButton(label);
+        newButton.setPrefWidth(width);
+        return newButton;
+    }
 }

@@ -22,16 +22,20 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import static com.example.superjavapaint.PaintApp.currentFile;
-import static com.example.superjavapaint.PaintApp.mainCanvas;
 
 /**
  * Contains static methods called by the "File" MenuItems in the SJPMenuBar, as well as similar methods that run in the background.
- * These methods handle the opening and saving of files, as well as resetting the canvas
+ * These methods handle the opening and saving of files, as well as resetting the canvas.
  * Resetting an unsaved canvas will open a warning window to prompt the user to save, again calling the save methods.
  */
-
 public class FileControls {
 
+    /**
+     * Opens a new file using the FileChooser, draws the image on a canvas, stores the file in the canvas, and assigns
+     * the file to the currentFile in PaintApp.
+     * @param canvas the canvas on which to place the opened file.
+     * @return the opened file, to be stored in PaintApp's currentFile
+     */
     public static File open(SJPCanvas canvas) {
         File file = new FileChooser().showOpenDialog(null);
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
@@ -42,30 +46,39 @@ public class FileControls {
             graphicsContext.drawImage(image, 0, 0);
         }
         canvas.setIsSaved(true);
-        canvas.updateCanvas();
+        canvas.getUndoRedo().updateStacks(canvas);
+        canvas.setStoredFile(file);
         return file;
     }
 
-    //overwrites the last opened image with a snapshot of the canvas
-    //takes as arguments the canvas to be captured and the file destination
-    public static void save(SJPCanvas canvas, File file) {
-        Image image = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight());
-        BufferedImage bufferedImage = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
+    /**
+     * Takes a snapshot of a canvas and saves it to the file located in the canvas's storedFile.
+     * @param canvas the canvas from which the saved image will be taken.
+     */
+    public static void save(SJPCanvas canvas) {
+        if (canvas.getStoredFile() != null) {
+            Image image = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight());
+            BufferedImage bufferedImage = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            try {
+                String name = canvas.getStoredFile().getName();
 
-        try {
-            String name = file.getName();
-            //collects the final characters of the filename to determine the type
-            String extension = name.substring(1+name.lastIndexOf(".")).toLowerCase();
-            ImageIO.write(SwingFXUtils.fromFXImage(image, bufferedImage), extension, file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                // Collects the final characters of the filename to determine the type
+                String extension = name.substring(1+name.lastIndexOf(".")).toLowerCase();
+                ImageIO.write(SwingFXUtils.fromFXImage(image, bufferedImage), extension, canvas.getStoredFile());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            canvas.setIsSaved(true);
         }
-        canvas.setIsSaved(true);
     }
 
-    //Uses FileChooser to select a save directory for a canvas snapshot, and saves as one of 3 file types
-    //Takes as an argument the canvas to be saved
-    public static void saveAs(SJPCanvas canvas) {
+    /**
+     * Uses a FileChooser to create a save directory for a canvas snapshot, and assigns the file to the canvas's
+     * storedFile and to the PaintApp's currentFile.
+     * @param canvas the canvas from which the saved image will be taken.
+     * @return a file to be stored in the PaintApp's currentFile
+     */
+    public static File saveAs(SJPCanvas canvas) {
         Image image = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight());
         BufferedImage bufferedImage = new BufferedImage((int) image.getWidth(), (int) image.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -93,70 +106,77 @@ public class FileControls {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        canvas.setStoredFile(file);
         canvas.setIsSaved(true);
+        return file;
     }
 
-    public static void newCanvas(SJPCanvas canvas, double width, double height) {
+    /**
+     * "Replaces" the passed canvas with a "new" one by resizing the old canvas and clearing its contents.
+     * @param canvas the canvas to be replaced with a new one
+     * @param width a double used to set the width of the new canvas
+     * @param height a double used to set the height of the new canvas
+     */
+    public static void saveAndResetCanvas(SJPCanvas canvas, double width, double height) {
         if (!canvas.getIsSaved()) {
             //Creates a new window prompting the user to save or discard their current canvas
-            //Should this instead just open a new tab, and keep the old canvas intact?
-            Stage stage1 = new Stage();
-            stage1.setWidth(200);
+            Stage saveWarning = new Stage();
+            saveWarning.setWidth(300);
             GridPane gridPane = new GridPane();
             gridPane.setHgap(10);
             gridPane.setVgap(10);
             gridPane.setPadding(new Insets(10));
             Scene scene1 = new Scene(gridPane);
-            Button saveAs = new Button("Save As...");
-            Button exit = new Button("Discard");
+
+            Button saveAsButton = new Button("Save As...");
+            saveAsButton.setOnAction(actionEvent -> {
+                saveWarning.close();
+                saveAs(canvas);
+                resetCanvas(canvas, width, height);
+            });
+
+            Button discardButton = new Button("Discard");
+            discardButton.setOnAction(actionEvent -> {
+                saveWarning.close();
+                resetCanvas(canvas, width, height);
+            });
+
             if (currentFile[0] != null) {
-                Button save = new Button("Save");
-                gridPane.add(save, 1, 1);
-                gridPane.add(saveAs, 2, 1);
-                gridPane.add(exit, 3, 1);
-                save.setOnAction(actionEvent -> {
-                    FileControls.save(mainCanvas, currentFile[0]);
-                    stage1.close();
+                Button saveButton = new Button("Save");
+                gridPane.add(saveButton, 1, 1);
+                gridPane.add(saveAsButton, 2, 1);
+                gridPane.add(discardButton, 3, 1);
+                saveButton.setOnAction(actionEvent -> {
+                    saveWarning.close();
+                    save(canvas);
+                    resetCanvas(canvas, width, height);
                 });
             } else {
-                gridPane.add(saveAs, 1, 1);
-                gridPane.add(exit, 2, 1);
+                gridPane.add(saveAsButton, 1, 1);
+                gridPane.add(discardButton, 2, 1);
             }
 
-            stage1.setTitle("Reset Canvas?");
-            stage1.setScene(scene1);
-            stage1.show();
+            saveWarning.setTitle("Reset Canvas?");
+            saveWarning.setScene(scene1);
+            saveWarning.show();
 
-            saveAs.setOnAction(actionEvent -> {
-                FileControls.saveAs(mainCanvas);
-                stage1.close();
-                canvas.setHeight(height);
-                canvas.setWidth(width);
-                GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-                graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                canvas.setIsSaved(true);
-            });
-            exit.setOnAction(actionEvent -> {
-                stage1.close();
-                canvas.setHeight(height);
-                canvas.setWidth(width);
-                GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-                graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                graphicsContext.drawImage(canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight()), 0, 0);
-                canvas.setIsSaved(true);
-            });
         }
+        else {resetCanvas(canvas, width, height);}
     }
 
-    //takes the current canvas and resizes based on user inputs, then clears the entire canvas
-    //Creates a stage to grab width and height, which closes once the "new Canvas" is made
-    //This SHOULD, but does not, clear the stored file
+    /**
+     * Creates a window that allows the user to input a width and height. Then passes those values to newCanvas.
+     * @param canvas the canvas to be replaced
+     * @throws IOException
+     */
     public static void newCanvasPrompter(SJPCanvas canvas) throws IOException {
         Stage stage = new Stage();
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(10));
+
+        // Creates all elements of the popup window
         Scene scene = new Scene(gridPane);
         Label widthLabel = new Label("Width");
         Label heightLabel = new Label("Height");
@@ -164,6 +184,7 @@ public class FileControls {
         TextField height = new TextField();
         Button create = new Button("Create New Canvas");
 
+        // Adds all elements to the window
         gridPane.add(widthLabel, 1, 1);
         gridPane.add(heightLabel, 1, 2);
         gridPane.add(width, 2, 1);
@@ -175,11 +196,18 @@ public class FileControls {
         stage.show();
 
         create.setOnAction(actionEvent -> {
-            newCanvas(canvas, Double.parseDouble(width.getText()), Double.parseDouble(height.getText()));
+            saveAndResetCanvas(canvas, Double.parseDouble(width.getText()), Double.parseDouble(height.getText()));
             stage.close();
         });
     }
 
+    /**
+     * Takes a snapshot of the passed canvas and stores it as a new file in the designated autoSave folder.
+     * This does NOT change the save state of the canvas, but it does use the save state to determine whether the
+     * autosave is necessary.
+     * @param canvas the canvas to be saved.
+     * @throws IOException
+     */
     public static void autoSaveImage(SJPCanvas canvas) throws IOException {
         if(!canvas.getIsSaved()) {
             Image autoSaveBackup = canvas.getRegion(0, 0, canvas.getWidth(), canvas.getHeight()); //snapshot of the current canvas
@@ -187,5 +215,21 @@ public class FileControls {
             backupFile.createNewFile();
             ImageIO.write(SwingFXUtils.fromFXImage(autoSaveBackup, null), "png", new FileOutputStream(backupFile));
         }
+    }
+
+    /**
+     * Clears a canvas and resizes it based on passed width and height doubles.
+     * @param canvas the canvas to be reset
+     * @param width the width to make the new canvas
+     * @param height the height to make the new canvas
+     */
+    public static void resetCanvas(SJPCanvas canvas, double width, double height) {
+        canvas.setHeight(height);
+        canvas.setWidth(width);
+        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        graphicsContext.clearRect(0, 0, width, height);
+        canvas.getUndoRedo().updateStacks(canvas);
+        canvas.updateLiveDraw();
+        canvas.setIsSaved(true);
     }
 }

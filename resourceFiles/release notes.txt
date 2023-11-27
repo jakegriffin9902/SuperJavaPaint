@@ -1,3 +1,27 @@
+Jacob Griffin's SuperJavaPaint, Version 7.0 (Final Commit) - 11/27/2023
+    New Features:
+	    - Live Draw now functions correctly for "Shape".
+	    - Redo and Undo are fixed.
+	    - Save and Save As correctly identify the current file only, preventing accidental overwrites of other canvases.
+	    - Autosave works for all tabs simultaneously.
+
+    Known Issues:
+        - Live Draw for transparent objects doesn't accurately reflect transparency level.
+        - AutoSave accumulates images that are not cleared from the autoSaves folder
+        - If a file is made using Save As..., it should be the current file (for saving again)
+        - Thick dashed strokes appear solid
+        - It can appear as if no buttons are selected if the user clicks the currently toggled button
+        - Smart Save only checks the main canvas (and ignores all other tabs).
+
+    Features to Consider:
+        - Add regular polygon
+        - The timer's countdown should be visible to the user (Only if they desire)
+        - Add a warning when saving with an alternate file format
+        - Notifications from the OS ("Corner of Windows)" for Autosave
+        - Threading for Logging
+
+
+
 Jacob Griffin's SuperJavaPaint, Version 6.0 - 10/16/2023
 
     New Features:

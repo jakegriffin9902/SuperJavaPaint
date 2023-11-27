@@ -1,3 +1,5 @@
 Jacob Griffin's SuperJavaPaint
 
+SuperJavaPaint is an interactive design application created by Jacob Griffin in 2023.
+
 Special thanks to Spencer Gannon for his advice and support.

@@ -21,7 +21,7 @@ import java.util.TimerTask;
 public class PaintApp extends Application {
 
     public static SJPCanvas mainCanvas;
-    public static TextField textField, stampAngle;
+    public static TextField mainTextField, stampAngle;
     public static SJPToolbar mainToolbar;
     public static SJPMenu mainMenuBar;
     public static File[] currentFile;
@@ -29,14 +29,16 @@ public class PaintApp extends Application {
     public static TabPane tabPane;
     public static TimerTask autoSave;
     public static Timer autoSaveTimer;
+    public static int autoSaveMinutes;
 
     public void start(Stage stage) {
 
         currentFile = new File[]{null};
-        textField = new TextField("Enter Text");
+        mainTextField = new TextField("Enter Text");
         stampAngle = new TextField("0");
         tabPane = new TabPane();
         sjpTabs = new LinkedList<>();
+        autoSaveMinutes = 5;
 
         //Using this linked list allows me to store and use SJPTabs (the tabPane itself can't access the canvas data)
         sjpTabs.addLast(new SJPTab());
@@ -46,17 +48,19 @@ public class PaintApp extends Application {
             @Override
             public void run(){
                 Platform.runLater(() -> {
-                    try {
-                        FileControls.autoSaveImage(mainCanvas);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    for (int i = 0; i < sjpTabs.size(); i++) {
+                        try {
+                            FileControls.autoSaveImage(sjpTabs.get(i).getCanvas());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
             }
         };
         //AutoSave is currently scheduled to occur every 5 minutes, and only on the main canvas.
         //Ideally, functionality would be extended to all canvases.
-        autoSaveTimer.schedule(autoSave, 0, 300000);
+        autoSaveTimer.schedule(autoSave, 0, 60000L * autoSaveMinutes);
 
         mainCanvas = sjpTabs.getLast().getCanvas();
 
@@ -65,7 +69,6 @@ public class PaintApp extends Application {
                 if (PaintApp.sjpTabs.get(i).isSelected()) {
                     SJPCanvasSettings tempSettings = mainCanvas.getCanvasSettings();
                     mainCanvas = PaintApp.sjpTabs.get(i).getCanvas();
-                    //These lines ensure the new canvas is synced with the Toolbar
                     mainCanvas.setCanvasSettings(tempSettings);
                 }
             }
@@ -115,7 +118,7 @@ public class PaintApp extends Application {
                     gridPane.add(saveAs, 2, 1);
                     gridPane.add(exit, 3, 1);
                     save.setOnAction(actionEvent -> {
-                        FileControls.save(mainCanvas, currentFile[0]);
+                        FileControls.save(mainCanvas);
                         stage1.close();
                         stage.close();
                     });
