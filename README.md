@@ -9,3 +9,5 @@
 ![Save State Diagram](https://github.com/jakegriffin9902/SuperJavaPaint/assets/124903127/52e28f61-e4c5-42b2-8719-70767b93eb88)
 ## Use-Case Diagram
 ![Use Case](https://github.com/jakegriffin9902/SuperJavaPaint/assets/124903127/bf230ea5-c475-4067-8b26-7b24d4d8c10a)
+## Activity Diagram
+![Activity Diagram](https://github.com/jakegriffin9902/SuperJavaPaint/assets/124903127/7de7a9bb-078d-4acd-85cb-410832be3330)
